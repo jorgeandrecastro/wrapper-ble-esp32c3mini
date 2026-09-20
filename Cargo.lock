@@ -556,7 +556,7 @@ dependencies = [
  "document-features",
  "enumset",
  "esp-config",
- "esp-sync 0.2.1",
+ "esp-sync",
  "linked_list_allocator",
  "rlsf",
 ]
@@ -604,7 +604,7 @@ dependencies = [
  "esp-metadata-generated 0.4.0",
  "esp-riscv-rt",
  "esp-rom-sys",
- "esp-sync 0.2.1",
+ "esp-sync",
  "esp32",
  "esp32c2",
  "esp32c3 0.32.2",
@@ -665,22 +665,9 @@ dependencies = [
  "esp-config",
  "esp-hal",
  "esp-metadata-generated 0.4.0",
- "esp-sync 0.2.1",
+ "esp-sync",
  "esp-wifi-sys-esp32c3",
  "esp32c3 0.32.2",
-]
-
-[[package]]
-name = "esp-println"
-version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebf772a41bc642b57399632aa06ab55391de35b2b8fcbb1b270d282fbd0fe5ff"
-dependencies = [
- "document-features",
- "esp-metadata-generated 0.5.3",
- "esp-sync 0.3.0",
- "log",
- "portable-atomic",
 ]
 
 [[package]]
@@ -706,7 +693,7 @@ dependencies = [
  "esp-metadata-generated 0.4.0",
  "esp-phy",
  "esp-radio-rtos-driver",
- "esp-sync 0.2.1",
+ "esp-sync",
  "esp-wifi-sys-esp32c3",
  "esp32c3 0.32.2",
  "heapless 0.9.3",
@@ -724,7 +711,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0bd75cd9073a90ffaa53db0bf17df7dc14164f2407a6ff36c725d2d1f78ff494"
 dependencies = [
  "cfg-if",
- "esp-sync 0.2.1",
+ "esp-sync",
  "portable-atomic",
 ]
 
@@ -762,21 +749,6 @@ dependencies = [
  "embassy-sync 0.7.2",
  "embassy-sync 0.8.0",
  "esp-metadata-generated 0.4.0",
- "riscv",
- "xtensa-lx",
-]
-
-[[package]]
-name = "esp-sync"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "064fd57eed12b5cbb669b3935e1f647fd6945b89938116d61153fb45fd703422"
-dependencies = [
- "document-features",
- "embassy-sync 0.6.2",
- "embassy-sync 0.7.2",
- "embassy-sync 0.8.0",
- "esp-metadata-generated 0.5.3",
  "riscv",
  "xtensa-lx",
 ]
@@ -1835,7 +1807,7 @@ dependencies = [
 
 [[package]]
 name = "wrapper-ble-esp32c3mini"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bt-hci",
  "embassy-executor",
@@ -1843,9 +1815,9 @@ dependencies = [
  "embassy-sync 0.7.2",
  "embassy-time",
  "esp-hal",
- "esp-println",
  "esp-radio",
  "heapless 0.9.3",
+ "log",
  "static_cell",
  "trouble-host",
 ]

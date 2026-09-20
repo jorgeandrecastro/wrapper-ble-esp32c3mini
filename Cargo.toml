@@ -1,11 +1,11 @@
 [package]
 name          = "wrapper-ble-esp32c3mini"
-version       = "0.1.0"
+version       = "0.2.0"
 edition       = "2024"
 authors       = ["Jorge Andre Castro <georgeandrec@gmail.com>"] 
 license       = "GPL-2.0-or-later"
 description   = "Wrapper BLE (GATT peripheral) no_std pour ESP32-C3 Mini, basé sur trouble-host, bt-hci et esp-radio"
-repository    = "https://github.com/jorgeandrecastro/wrapper-ble-esp32c3mini"
+repository    = "https://github.com/jorgeandrecastro/wrapper-ble-esp32c3mini" 
 documentation = "https://docs.rs/wrapper-ble-esp32c3mini"
 readme        = "README.md"
 keywords      = ["embedded", "ble", "bluetooth", "esp32c3", "no-std"]
@@ -47,8 +47,16 @@ static_cell = "2.1.1"
 esp-hal = { version = "1.1.2", features = ["esp32c3", "unstable"] }
 esp-radio = { version = "0.18.0", features = ["esp32c3", "ble", "unstable"] }
 
-# --- Sortie console (utilisée par run_ble_runner pour logguer les erreurs) ---
-esp-println = { version = "0.18.0", features = ["esp32c3"] }
+# --- Journalisation ---
+# On utilise la façade `log` plutôt que d'imposer `esp-println` directement :
+# `esp-println` déclare `links = "esp-println"` (une seule version dans tout
+# l'arbre) ET exige qu'exactement une feature de sortie soit active (`auto`,
+# `uart`, `jtag-serial`, `no-op`). Une bibliothèque ne doit pas trancher ce
+# choix à la place du binaire final. En passant par `log`, c'est le binaire
+# qui choisit son backend (ici `esp-println` avec sa feature `log-04`, mais
+# ça pourrait tout aussi bien être `defmt` ou autre) ; la lib se contente
+# d'émettre des messages via la façade standard.
+log = { version = "0.4", default-features = false }
 
 [profile.release]
 opt-level     = "z"

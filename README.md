@@ -6,13 +6,6 @@
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](./LICENSE)
 [![Downloads](https://img.shields.io/crates/d/wrapper-ble-esp32c3mini.svg)](https://crates.io/crates/wrapper-ble-esp32c3mini)
 
-> **À adapter :** les badges `crates.io` / `docs.rs` / `Downloads` pointent
-> vers le nom de crate `wrapper-ble-esp32c3mini` — ils n'afficheront des
-> données réelles qu'une fois le crate publié sur crates.io. Le badge `CI`
-> suppose un workflow GitHub Actions à `.github/workflows/ci.yml` et l'URL
-> `tonpseudo/wrapper-ble-esp32c3mini` (à remplacer par ton vrai dépôt, comme
-> pour `repository` dans `Cargo.toml`). Supprime les badges qui ne
-> s'appliquent pas encore à ton projet.
 
 Bibliothèque `no_std` qui encapsule l'initialisation d'un périphérique BLE
 (*GATT peripheral*) sur ESP32-C3, au-dessus de `esp-radio`, `bt-hci` et
@@ -27,8 +20,24 @@ Elle expose :
 - `BleSystem::init(...)` : construit le contrôleur, la pile hôte
   `trouble-host` et le serveur GATT, et te rend `runner`, `peripheral` et
   `server` prêts à l'emploi ;
-- `run_ble_runner(...)` : tâche à *spawner* qui fait tourner la boucle
+- `run_ble_runner(...)`: tâche à *spawner* qui fait tourner la boucle
   d'évènements de la pile hôte en continu.
+
+## Installation
+
+```toml
+[dependencies]
+wrapper-ble-esp32c3mini = "0.2"
+```
+
+## Historique des versions
+
+- **0.2.0** retire la dépendance directe à `esp-println` (remplacée par
+  la façade `log`, voir « Journalisation » plus bas). La 0.1.0 pouvait
+  casser la compilation d'un binaire consommateur qui fixait lui-même une
+  version d'`esp-println` différente, celui-ci ayant `links = "esp-println"`
+  (une seule version autorisée dans tout l'arbre de dépendances).
+- **0.1.0** première version.
 
 ## Pourquoi ces versions précises de dépendances ?
 
@@ -45,9 +54,19 @@ toutes inter-compatibles au moment de la rédaction :
 | `heapless`     | `0.9`            | exigé par `trouble-host 0.6.0`                                          |
 | `embassy-sync` | `0.7.2`          | dépendance directe requise : l'expansion de `#[gatt_server]`/`#[gatt_service]` par `trouble-host-macros 0.4.0` (la version réellement résolue par `trouble-host 0.6.0`, qui demande `^0.4.0`) référence `embassy_sync::...` sans passer par un ré-export de `trouble_host` |
 
-Si tu mets à jour une de ces dépendances, vérifie que les trois autres
-suivent : c'est le point qui casse le plus souvent une compilation dans cet
-écosystème.
+
+
+## Journalisation
+
+`run_ble_runner` journalise ses erreurs via la façade [`log`](https://docs.rs/log)
+plutôt que via `esp-println` directement. `esp-println` déclare
+`links = "esp-println"` (une seule version possible dans tout l'arbre de
+dépendances) **et** exige qu'exactement une feature de sortie soit active
+(`auto`, `uart`, `jtag-serial` ou `no-op`) deux contraintes qu'une
+bibliothèque ne doit pas trancher à la place du binaire final, au risque
+d'entrer en conflit avec son propre choix de version/feature. Le binaire
+final reste libre d'utiliser `esp-println` (avec sa feature `log-04`),
+`defmt`, ou tout autre backend `log`.
 
 ## Mémoire statique
 
@@ -61,12 +80,12 @@ attendues par `Runner<'static, ...>` / `Peripheral<'static, ...>`).
 
 Deux autres points de la signature sont volontairement fixés à `'static` :
 
-- **`BleServer<'static>`** — `#[gatt_server]` génère un type portant un
+- **`BleServer<'static>`** :`#[gatt_server]` génère un type portant un
   paramètre de durée de vie (`BleServer<'values>`), hérité de la chaîne de
   caractères passée à `PeripheralConfig::name`. Comme on lui passe toujours
   un `&'static str` (le nom de l'appareil est un littéral), cette durée de
   vie vaut systématiquement `'static` ici.
-- **`bt_peripheral: esp_hal::peripherals::BT<'static>`** — `esp_hal::peripherals::BT`
+- **`bt_peripheral: esp_hal::peripherals::BT<'static>`** :`esp_hal::peripherals::BT`
   porte lui aussi un paramètre de durée de vie. Sans l'annoter explicitement
   dans la signature de `BleSystem::init`, le compilateur lui assigne une
   durée de vie anonyme propre à l'appel, incompatible avec

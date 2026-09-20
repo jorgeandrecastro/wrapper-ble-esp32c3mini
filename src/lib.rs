@@ -208,13 +208,18 @@ impl BleSystem {
 ///
 /// À *spawner* sur l'exécuteur Embassy du binaire final (voir l'exemple du
 /// module). En cas d'erreur du runner (déconnexion inattendue du
-/// contrôleur, par exemple), l'erreur est journalisée via [`esp_println`]
-/// et la boucle retente après une seconde plutôt que de paniquer, afin de
-/// ne pas interrompre le reste de l'application.
+/// contrôleur, par exemple), l'erreur est journalisée via la façade
+/// [`log`] et la boucle retente après une seconde plutôt que de paniquer,
+/// afin de ne pas interrompre le reste de l'application.
+///
+/// Le binaire final doit initialiser un backend `log` (par exemple
+/// `esp-println` avec sa feature `log-04`, ou `defmt`) pour que ces
+/// messages soient réellement visibles ; sans backend initialisé, ils sont
+/// silencieusement ignorés plutôt que de provoquer une erreur.
 pub async fn run_ble_runner(mut runner: Runner<'_, BleController, DefaultPacketPool>) {
     loop {
         if let Err(e) = runner.run().await {
-            esp_println::println!("Erreur du runner Bluetooth : {:?}", e);
+            log::error!("Erreur du runner Bluetooth : {:?}", e);
             Timer::after(Duration::from_secs(1)).await;
         }
     }
