@@ -2,7 +2,6 @@
 
 [![Crates.io](https://img.shields.io/crates/v/wrapper-ble-esp32c3mini.svg)](https://crates.io/crates/wrapper-ble-esp32c3mini)
 [![docs.rs](https://img.shields.io/docsrs/wrapper-ble-esp32c3mini)](https://docs.rs/wrapper-ble-esp32c3mini)
-[![CI](https://github.com/tonpseudo/wrapper-ble-esp32c3mini/actions/workflows/ci.yml/badge.svg)](https://github.com/tonpseudo/wrapper-ble-esp32c3mini/actions/workflows/ci.yml)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](./LICENSE)
 [![Downloads](https://img.shields.io/crates/d/wrapper-ble-esp32c3mini.svg)](https://crates.io/crates/wrapper-ble-esp32c3mini)
 

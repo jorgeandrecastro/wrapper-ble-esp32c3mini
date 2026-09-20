@@ -1807,7 +1807,7 @@ dependencies = [
 
 [[package]]
 name = "wrapper-ble-esp32c3mini"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "bt-hci",
  "embassy-executor",
