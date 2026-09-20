@@ -1,0 +1,58 @@
+[package]
+name          = "wrapper-ble-esp32c3mini"
+version       = "0.1.0"
+edition       = "2024"
+authors       = ["Jorge Andre Castro <georgeandrec@gmail.com>"] 
+license       = "GPL-2.0-or-later"
+description   = "Wrapper BLE (GATT peripheral) no_std pour ESP32-C3 Mini, basé sur trouble-host, bt-hci et esp-radio"
+repository    = "https://github.com/jorgeandrecastro/wrapper-ble-esp32c3mini"
+documentation = "https://docs.rs/wrapper-ble-esp32c3mini"
+readme        = "README.md"
+keywords      = ["embedded", "ble", "bluetooth", "esp32c3", "no-std"]
+categories    = ["embedded", "no-std", "hardware-support", "asynchronous"]
+
+[dependencies]
+# --- Pile Embassy (async no_std) ---
+# Aucune feature de plateforme n'est activée ici volontairement : c'est au
+# binaire final (via esp-hal-embassy) de choisir l'exécuteur RISC-V et de
+# démarrer la boucle d'évènements. Cette bibliothèque ne fait que définir
+# les futures ; elle ne construit pas d'exécuteur elle-même.
+embassy-executor = "0.10"
+embassy-time     = "0.5.1"
+embassy-futures  = "0.1.2"
+# Dépendance directe requise par l'expansion des macros #[gatt_server] /
+# #[gatt_service] de trouble-host-macros 0.4.0 (celle réellement résolue
+# par trouble-host 0.6.0, qui demande `trouble-host-macros ^0.4.0`) : le
+# code généré référence `embassy_sync::...` sans passer par un ré-export de
+# trouble_host, donc `embassy-sync` doit être un dépendance directe de ce
+# crate, pas seulement une dépendance transitive de trouble-host.
+embassy-sync = "0.7.2"
+
+# --- Pile BLE (host + HCI) ---
+# trouble-host 0.6.x est la dernière branche qui dépend de bt-hci ^0.8, ce qui
+# correspond à la version de bt-hci exposée par esp-radio 0.18.0. Les versions
+# 0.7/0.8 de trouble-host embarquent bt-hci ^0.9/^0.10 et ne sont donc pas
+# compatibles avec esp-radio 0.18.0 tant que ce dernier n'est pas mis à jour.
+trouble-host = "0.6.0"
+bt-hci        = "0.8.1"
+
+# --- Structures sans allocation ---
+heapless   = "0.9"
+static_cell = "2.1.1"
+
+# --- HAL et pile radio Espressif ---
+# esp-radio 0.18.0 exige `esp-hal ~1.1.0-rc.0` (donc la branche 1.1.x, pas 1.2.x)
+# et `bt-hci ^0.8.0` : les versions ci-dessous sont les plus récentes qui
+# respectent ces deux contraintes simultanément.
+esp-hal = { version = "1.1.2", features = ["esp32c3", "unstable"] }
+esp-radio = { version = "0.18.0", features = ["esp32c3", "ble", "unstable"] }
+
+# --- Sortie console (utilisée par run_ble_runner pour logguer les erreurs) ---
+esp-println = { version = "0.18.0", features = ["esp32c3"] }
+
+[profile.release]
+opt-level     = "z"
+lto           = true  # Link-Time Optimization
+codegen-units = 1
+panic         = "abort"
+strip         = true
