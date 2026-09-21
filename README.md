@@ -123,6 +123,14 @@ La configuration de l'exécuteur Embassy (via `esp-hal-embassy`) reste à la
 charge du binaire final ; cette bibliothèque ne fait que fournir les
 futures et la structure GATT.
 
+**Build,doc et publish**
+```bash
+cargo build --target riscv32imc-unknown-none-elf --release
+cargo doc --target riscv32imc-unknown-none-elf --release
+cargo publish --target riscv32imc-unknown-none-elf --release
+```
+
+
 ## Licence
 
 GPL-2.0-or-later — voir [`LICENSE`](./LICENSE).
