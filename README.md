@@ -127,7 +127,7 @@ futures et la structure GATT.
 ```bash
 cargo build --target riscv32imc-unknown-none-elf --release
 cargo doc --target riscv32imc-unknown-none-elf --release
-cargo publish --target riscv32imc-unknown-none-elf --release
+cargo publish --target riscv32imc-unknown-none-elf 
 ```
 
 
