@@ -6,93 +6,93 @@
 [![Downloads](https://img.shields.io/crates/d/wrapper-ble-esp32c3mini.svg)](https://crates.io/crates/wrapper-ble-esp32c3mini)
 
 
-Bibliothèque `no_std` qui encapsule l'initialisation d'un périphérique BLE
-(*GATT peripheral*) sur ESP32-C3, au-dessus de `esp-radio`, `bt-hci` et
+A `no_std` library that wraps the initialization of a BLE peripheral
+(GATT peripheral) on ESP32-C3, built on `esp-radio`, `bt-hci`, and
 `trouble-host`.
 
-Elle expose :
+It provides:
 
-- `BleController` : alias vers le contrôleur HCI externe branché sur le
-  `BleConnector` de `esp-radio` ;
-- `BleServer` / `DisplayService` : un serveur GATT minimal avec deux
-  caractéristiques (`command` en écriture, `status` en lecture/notification) ;
-- `BleSystem::init(...)` : construit le contrôleur, la pile hôte
-  `trouble-host` et le serveur GATT, et te rend `runner`, `peripheral` et
-  `server` prêts à l'emploi ;
-- `run_ble_runner(...)`: tâche à *spawner* qui fait tourner la boucle
-  d'évènements de la pile hôte en continu.
+- `BleController`: an alias for the external HCI controller connected to
+  `esp-radio`'s `BleConnector`;
+- `BleServer` / `DisplayService`: a minimal GATT server with two
+  characteristics (`command` for writing, `status` for reading/notification);
+- `BleSystem::init(...)`: builds the controller, the `trouble-host` host
+  stack, and the GATT server, returning ready-to-use `runner`, `peripheral`,
+  and `server` components;
+- `run_ble_runner(...)`: a task to spawn to continuously run the host
+  stack's event loop.
 
 ## Installation
 
 ```toml
 [dependencies]
-wrapper-ble-esp32c3mini = "0.2"
+wrapper-ble-esp32c3mini = "1.0"
 ```
 
-## Historique des versions
+## Version history
 
-- **0.2.0** retire la dépendance directe à `esp-println` (remplacée par
-  la façade `log`, voir « Journalisation » plus bas). La 0.1.0 pouvait
-  casser la compilation d'un binaire consommateur qui fixait lui-même une
-  version d'`esp-println` différente, celui-ci ayant `links = "esp-println"`
-  (une seule version autorisée dans tout l'arbre de dépendances).
-- **0.1.0** première version.
+- **1.0.0** stable release; documentation and messages translated into English.
+- **0.2.0** removed the direct dependency on `esp-println` (replaced by
+  the `log` facade; see Logging below). Version 0.1.0 could break the build
+  of a consuming binary that selected a different version of `esp-println`,
+  because it declares `links = "esp-println"` (only one version is allowed
+  in the entire dependency tree).
+- **0.1.0** initial release.
 
-## Pourquoi ces versions précises de dépendances ?
+## Why these dependency versions?
 
-Le `Cargo.toml` fige volontairement certaines versions plutôt que de
-prendre les toutes dernières de chaque crate, parce qu'elles ne sont **pas**
-toutes inter-compatibles au moment de la rédaction :
+`Cargo.toml` deliberately specifies certain versions rather than selecting
+the latest release of each crate, because they are **not** all compatible
+with one another at the time of writing:
 
-| Crate          | Version retenue | Raison                                                                 |
+| Crate          | Selected version | Reason                                                                 |
 |----------------|------------------|-------------------------------------------------------------------------|
-| `esp-radio`    | `0.18.0`         | dernière stable                                                         |
-| `esp-hal`      | `1.1.2`          | `esp-radio 0.18.0` exige `esp-hal ~1.1.0-rc.0` → branche `1.1.x` uniquement, pas `1.2.x` |
-| `bt-hci`       | `0.8.1`          | `esp-radio 0.18.0` exige `bt-hci ^0.8.0`                                 |
-| `trouble-host` | `0.6.0`          | seule branche de `trouble-host` qui dépend elle-même de `bt-hci ^0.8` (les versions `0.7`/`0.8` sont passées à `bt-hci ^0.9`/`^0.10`) |
-| `heapless`     | `0.9`            | exigé par `trouble-host 0.6.0`                                          |
-| `embassy-sync` | `0.7.2`          | dépendance directe requise : l'expansion de `#[gatt_server]`/`#[gatt_service]` par `trouble-host-macros 0.4.0` (la version réellement résolue par `trouble-host 0.6.0`, qui demande `^0.4.0`) référence `embassy_sync::...` sans passer par un ré-export de `trouble_host` |
+| `esp-radio`    | `0.18.0`         | latest stable release                                                   |
+| `esp-hal`      | `1.1.2`          | `esp-radio 0.18.0` requires `esp-hal ~1.1.0-rc.0`: the `1.1.x` branch only, not `1.2.x` |
+| `bt-hci`       | `0.8.1`          | `esp-radio 0.18.0` requires `bt-hci ^0.8.0`                             |
+| `trouble-host` | `0.6.0`          | the branch of `trouble-host` that depends on `bt-hci ^0.8` (versions `0.7`/`0.8` moved to `bt-hci ^0.9`/`^0.10`) |
+| `heapless`     | `0.9`            | required by `trouble-host 0.6.0`                                        |
+| `embassy-sync` | `0.7.2`          | direct dependency required: `#[gatt_server]`/`#[gatt_service]` expansion by `trouble-host-macros 0.4.0` (the version resolved by `trouble-host 0.6.0`, which requires `^0.4.0`) references `embassy_sync::...` without a `trouble_host` re-export |
 
 
 
-## Journalisation
+## Logging
 
-`run_ble_runner` journalise ses erreurs via la façade [`log`](https://docs.rs/log)
-plutôt que via `esp-println` directement. `esp-println` déclare
-`links = "esp-println"` (une seule version possible dans tout l'arbre de
-dépendances) **et** exige qu'exactement une feature de sortie soit active
-(`auto`, `uart`, `jtag-serial` ou `no-op`) deux contraintes qu'une
-bibliothèque ne doit pas trancher à la place du binaire final, au risque
-d'entrer en conflit avec son propre choix de version/feature. Le binaire
-final reste libre d'utiliser `esp-println` (avec sa feature `log-04`),
-`defmt`, ou tout autre backend `log`.
+`run_ble_runner` logs errors through the [`log`](https://docs.rs/log)
+facade rather than using `esp-println` directly. `esp-println` declares
+`links = "esp-println"` (only one version can appear in the entire dependency
+tree) **and** requires exactly one output feature (`auto`, `uart`,
+`jtag-serial`, or `no-op`). A library should not make these choices on
+behalf of the final binary, as they could conflict with its own version or
+feature selection. The final binary remains free to use `esp-println`
+(with its `log-04` feature), `defmt`, or another `log` backend.
 
-## Mémoire statique
+## Static memory
 
-`trouble-host` attend que ses ressources internes (`HostResources`) et la
-`Stack` elle-même vivent en `'static`. `BleSystem::init` utilise donc
-`static_cell::StaticCell` pour les promouvoir, plutôt que de les garder en
-variables locales (qui ne compileraient pas avec les bornes de durée de vie
-attendues par `Runner<'static, ...>` / `Peripheral<'static, ...>`).
+`trouble-host` requires its internal resources (`HostResources`) and the
+`Stack` itself to have a `'static` lifetime. `BleSystem::init` therefore uses
+`static_cell::StaticCell` to give them that lifetime rather than keeping them
+in local variables, which would not satisfy the lifetime bounds expected by
+`Runner<'static, ...>` / `Peripheral<'static, ...>`.
 
-## Durées de vie (`'static`)
+## Lifetimes (`'static`)
 
-Deux autres points de la signature sont volontairement fixés à `'static` :
+Two other parts of the signature are deliberately set to `'static`:
 
-- **`BleServer<'static>`** :`#[gatt_server]` génère un type portant un
-  paramètre de durée de vie (`BleServer<'values>`), hérité de la chaîne de
-  caractères passée à `PeripheralConfig::name`. Comme on lui passe toujours
-  un `&'static str` (le nom de l'appareil est un littéral), cette durée de
-  vie vaut systématiquement `'static` ici.
-- **`bt_peripheral: esp_hal::peripherals::BT<'static>`** :`esp_hal::peripherals::BT`
-  porte lui aussi un paramètre de durée de vie. Sans l'annoter explicitement
-  dans la signature de `BleSystem::init`, le compilateur lui assigne une
-  durée de vie anonyme propre à l'appel, incompatible avec
-  `BleController = ExternalController<BleConnector<'static>, 20>`. Un
-  `Peripherals` obtenu normalement via `esp_hal::init(...)` a des champs
-  `'static` par défaut, donc `peripherals.BT` s'y prête directement.
+- **`BleServer<'static>`**: `#[gatt_server]` generates a type with a
+  lifetime parameter (`BleServer<'values>`) inherited from the string
+  passed to `PeripheralConfig::name`. Since it is always passed a
+  `&'static str` (the device name is a literal), the lifetime is always
+  `'static` here.
+- **`bt_peripheral: esp_hal::peripherals::BT<'static>`**:
+  `esp_hal::peripherals::BT` also has a lifetime parameter. Without an
+  explicit annotation in the signature of `BleSystem::init`, the compiler
+  assigns it an anonymous lifetime specific to the call, incompatible with
+  `BleController = ExternalController<BleConnector<'static>, 20>`.
+  `Peripherals` normally obtained through `esp_hal::init(...)` has
+  `'static` fields by default, so `peripherals.BT` can be used directly.
 
-## Exemple minimal
+## Minimal example
 
 ```rust,ignore
 #![no_std]
@@ -107,8 +107,8 @@ async fn main(spawner: embassy_executor::Spawner) {
     let ble = BleSystem::init(peripherals.BT);
     spawner.spawn(ble_runner_task(ble.runner)).unwrap();
 
-    // `ble.peripheral` : publicité BLE + acceptation de connexions
-    // `ble.server`     : lecture/écriture des caractéristiques GATT
+    // `ble.peripheral`: BLE advertising and accepting connections
+    // `ble.server`: reading/writing GATT characteristics
 }
 
 #[embassy_executor::task]
@@ -119,11 +119,10 @@ async fn ble_runner_task(
 }
 ```
 
-La configuration de l'exécuteur Embassy (via `esp-hal-embassy`) reste à la
-charge du binaire final ; cette bibliothèque ne fait que fournir les
-futures et la structure GATT.
+The final binary is responsible for configuring the Embassy executor (via
+`esp-hal-embassy`); this library only provides the futures and GATT structure.
 
-**Build,doc et publish**
+**Build, documentation, and publishing**
 ```bash
 cargo build --target riscv32imc-unknown-none-elf --release
 cargo doc --target riscv32imc-unknown-none-elf --release
@@ -131,6 +130,6 @@ cargo publish --target riscv32imc-unknown-none-elf
 ```
 
 
-## Licence
+## License
 
-GPL-2.0-or-later — voir [`LICENSE`](./LICENSE).
+GPL-2.0-or-later — see [`LICENSE`](./LICENSE).
