@@ -1,9 +1,9 @@
 [package]
 name          = "wrapper-ble-esp32c3mini"
-version       = "1.0.0"
+version       = "1.1.0"
 edition       = "2024"
 authors       = ["Jorge Andre Castro <georgeandrec@gmail.com>"] 
-license       = "GPL-2.0-or-later"
+license = "MIT OR Apache-2.0"
 description   = "A no_std BLE (GATT peripheral) wrapper for ESP32-C3 Mini, built on trouble-host, bt-hci and esp-radio"
 repository    = "https://github.com/jorgeandrecastro/wrapper-ble-esp32c3mini" 
 documentation = "https://docs.rs/wrapper-ble-esp32c3mini"

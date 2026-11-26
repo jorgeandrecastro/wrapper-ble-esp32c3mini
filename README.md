@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/wrapper-ble-esp32c3mini.svg)](https://crates.io/crates/wrapper-ble-esp32c3mini)
 [![docs.rs](https://img.shields.io/docsrs/wrapper-ble-esp32c3mini)](https://docs.rs/wrapper-ble-esp32c3mini)
-[![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](./LICENSE)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20or%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://img.shields.io/crates/d/wrapper-ble-esp32c3mini.svg)](https://crates.io/crates/wrapper-ble-esp32c3mini)
 
 
@@ -26,7 +26,7 @@ It provides:
 
 ```toml
 [dependencies]
-wrapper-ble-esp32c3mini = "1.0"
+wrapper-ble-esp32c3mini = "1.1"
 ```
 
 ## Version history
@@ -129,7 +129,16 @@ cargo doc --target riscv32imc-unknown-none-elf --release
 cargo publish --target riscv32imc-unknown-none-elf 
 ```
 
+## 🛡️ License
 
-## License
+Licensed under either of:
 
-GPL-2.0-or-later — see [`LICENSE`](./LICENSE).
+    MIT license (http://opensource.org/licenses/MIT)
+
+    Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+
+at your option.
+
+## 🦅 About
+
+Developed by Jorge Andre Castro.
